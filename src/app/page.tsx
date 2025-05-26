@@ -1,103 +1,127 @@
-import Image from "next/image";
+"use client";
+
+import Nav from "./components/Nav";
+import { AnimatedButton, LightButton } from "@/components/ui";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const router = useRouter();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleSignupClick = () => {
+    router.push("/signup");
+  };
+
+  const handleLoginClick = () => {
+    router.push("/login");
+  };
+
+  return (
+    <div className="relative">
+      <Nav />
+
+      {/* Body */}
+      <div className="relative flex flex-col min-h-screen justify-center">
+        <div className="flex justify-center items-center">
+          <div className="grid grid-cols-3">
+            {/* Mascot */}
+            <div className="col-span-2 flex justify-center">
+              <img src="http://placehold.co/500" alt="" />
+            </div>
+
+            {/* Introduction */}
+            <div className="flex flex-col items-center justify-center">
+              <h2 className="text-center lg:mb-10 lg:text-lg">
+                FlashBack helps you master anything, anytime, <br />
+                one digital card at a time.
+              </h2>
+              <div className="w-60">
+                <AnimatedButton
+                  text="Get Started"
+                  fullWidth
+                  style="m-4"
+                  onClick={handleSignupClick}
+                />
+                <LightButton
+                  text="I already have an account"
+                  onClick={handleLoginClick}
+                  fullWidth
+                  style="m-4"
+                />
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Bottom Body */}
+        <div className="absolute bottom-0 w-full">
+          <div className="flex justify-center items-center">
+            <div className="grid grid-cols-4 gap-20 justify-items-center py-10">
+              <p className="cursor-pointer">Flashcards</p>
+              <p className="cursor-pointer">Study Mode</p>
+              <p className="cursor-pointer">Quizzes</p>
+              <p className="cursor-pointer">Match Mode</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Value Blocks */}
+      <div className="value-blocks-container">
+        {/* Brain */}
+        <div className="grid grid-cols-5 py-20">
+          <div className="col-span-2 flex justify-end">
+            <img src="http://placehold.co/500" alt="" />
+          </div>
+          <div className="col-span-3 h-full flex items-center justify-center">
+            <div className="text-center">
+              <h4 className="text-lg font-semibold">
+                Study smarter, not harder.
+              </h4>
+              <h5 className="text-sm text-zinc-600 dark:text-zinc-400">
+                Master topics with intelligent flashcards that adapt to how well{" "}
+                <br />
+                you know the material—so you focus where it matters most.
+              </h5>
+            </div>
+          </div>
+        </div>
+
+        {/* Clock */}
+        <div className="grid grid-cols-5 py-20">
+          <div className="col-span-3 h-full flex items-center justify-center">
+            <div className="text-center">
+              <h4 className="text-lg font-semibold">
+                Review in minutes, retain for life.
+              </h4>
+              <h5 className="text-sm text-zinc-600 dark:text-zinc-400">
+                Whether you’ve got 5 minutes or 50, Flashback helps you lock in
+                <br />
+                knowledge with fast, focused review sessions.
+              </h5>
+            </div>
+          </div>
+          <div className="col-span-2 flex justify-start">
+            <img src="http://placehold.co/500" alt="" />
+          </div>
+        </div>
+
+        {/* Access */}
+        <div className="grid grid-cols-5 py-20">
+          <div className="col-span-2 flex justify-end">
+            <img src="http://placehold.co/500" alt="" />
+          </div>
+          <div className="col-span-3 h-full flex items-center justify-center">
+            <div className="text-center">
+              <h4 className="text-lg font-semibold">Your memory, on demand.</h4>
+              <h5 className="text-sm text-zinc-600 dark:text-zinc-400">
+                Access your flashcards anytime, anywhere. Perfect for cramming
+                <br />
+                before class or brushing up while in line for coffee.
+              </h5>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
