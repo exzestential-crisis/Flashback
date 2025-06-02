@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import AnimatedWrapper from "@/components/ui/AnimatedWrapper";
+import { NotificationProvider } from "@/contexts/NotificationContext";
+import NotificationContainer from "@/components/feedback/Notification";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,7 +31,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-zinc-900 dark:text-white`}
       >
-        <AnimatedWrapper>{children}</AnimatedWrapper>
+        <NotificationProvider>
+          <AnimatedWrapper>{children}</AnimatedWrapper>
+          <NotificationContainer />
+        </NotificationProvider>
       </body>
     </html>
   );

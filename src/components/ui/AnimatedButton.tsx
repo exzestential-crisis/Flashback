@@ -40,7 +40,34 @@ export default function AnimatedButton({
             flex items-center justify-center
             p-2.5 gap-4 rounded-lg
             text-white ${textSize} font-medium
-            bg-sky-500 dark:bg-sky-800
+            bg-sky-500 
+            shadow-[0_4px_0_theme('colors.sky.600')] 
+
+            transition
+            hover:bg-sky-400 
+            hover:shadow-[0_4px_0_theme('colors.sky.500')] 
+            hover:translate-y-[1px]
+
+            focus:bg-sky-600 
+            focus:shadow-none
+            focus:translate-y-1
+
+            disabled:opacity-50
+            disabled:cursor-not-allowed
+            disabled:hover:bg-sky-500 
+            disabled:hover:shadow-[0_4px_0_theme('colors.sky.600')]
+            disabled:hover:translate-y-0
+            `}
+        disabled={disabled}
+      >
+        {img && <img src={img} className={imgClass} />}
+        {text}
+      </button>
+    </div>
+  );
+}
+
+/*          bg-sky-500 dark:bg-sky-800
             shadow-[0_4px_0_theme('colors.sky.600')] dark:shadow-[0_4px_0_theme('colors.sky.900')]
 
             transition
@@ -57,12 +84,4 @@ export default function AnimatedButton({
             disabled:hover:bg-sky-500 dark:disabled:hover:bg-sky-800
             disabled:hover:shadow-[0_4px_0_theme('colors.sky.600')] dark:disabled:hover:shadow-[0_4px_0_theme('colors.sky.900')]
             disabled:hover:translate-y-0
-            `}
-        disabled={disabled}
-      >
-        {img && <img src={img} className={imgClass} />}
-        {text}
-      </button>
-    </div>
-  );
-}
+*/

@@ -21,7 +21,7 @@ export default function Nav() {
               alt="FlashBack"
               className="pe-5 w-20"
             />
-            <h1 className="lg:text-2xl font-semibold text-zinc-700 dark:text-zinc-400">
+            <h1 className="lg:text-2xl font-semibold text-zinc-700 dark:text-zinc-200">
               FlashBack
             </h1>
           </a>

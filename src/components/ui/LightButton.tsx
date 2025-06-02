@@ -38,12 +38,12 @@ export default function LightButton({
               
               border border-zinc-200 dark:border-zinc-600
 
-              hover:bg-zinc-100  dark:hover:bg-zinc-800
+              hover:bg-zinc-100  dark:hover:bg-zinc-600
               hover:text-zinc-900 dark:hover:text-zinc-100
 
               focus:bg-zinc-200 dark:focus:bg-zinc-500`,
     colored: `
-              text-zinc-900 dark
+              text-zinc-900 dark:text-zinc-300
               bg-white/50 dark:bg-black/10
               border border-black/10 dark:border-black/30`,
   }[variant];

@@ -52,7 +52,7 @@ export default function Input({
         `,
     plain: `
         text-slate-900 dark:text-white
-        
+
         bg-zinc-100 dark:bg-zinc-700
         border border-zinc-200 dark:border-zinc-600
 
@@ -67,6 +67,11 @@ export default function Input({
         ? "text"
         : "password"
       : type;
+
+  const eyeIconPosition = {
+    blue: "top-1/2 -translate-y-1/2",
+    plain: "top-[63%] -translate-y-1/2",
+  };
 
   return (
     <div className="relative w-full">
@@ -88,7 +93,12 @@ export default function Input({
       {/* Password visibility toggle */}
       {type === "password" && showPasswordToggle && (
         <div
-          className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
+          className={`
+            absolute right-3
+            ${eyeIconPosition[variant]}
+            transform
+            flex items-center cursor-pointer
+          `}
           onClick={togglePasswordVisibility}
         >
           {passwordVisible ? <ClosedEye /> : <OpenEye />}

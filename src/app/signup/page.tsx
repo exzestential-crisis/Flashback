@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { AnimatedButton, ArrowBack, LightButton, Input } from "@/components";
 import Nav from "../components/Nav";
 import { Facebook, Google } from "../../../public/assets/logos";
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function signup() {
   const router = useRouter();
 
   // ui
-  const [notification, setNotification] = useState([]);
+  const { addNotification } = useNotification();
   const [isLoading, setIsLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
 
@@ -183,9 +184,53 @@ export default function signup() {
     return true;
   };
 
-  //Form Submition
-  const handleSignupClick = () => {
-    console.log("Form Contents: ", form);
+  //Form Submission
+  const handleSignupClick = async () => {
+    if (!isFormComplete) return;
+
+    setIsLoading(true);
+
+    try {
+      // Store form data in sessionStorage for verification page
+      const signupData = {
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        user_type: form.user_type,
+        interests: form.interests,
+        timestamp: Date.now(), // Add timestamp for expiration if needed
+      };
+
+      sessionStorage.setItem("pendingSignup", JSON.stringify(signupData));
+
+      // Send verification email
+      const response = await fetch("/api/auth/send-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: form.email, username: form.username }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Navigate to verification page
+        router.push("/verification");
+      } else {
+        addNotification(
+          data.error || "Failed to send verification email",
+          "error"
+        );
+
+        return;
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      addNotification("An error occurred. Please try again.", "error");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -220,30 +265,33 @@ export default function signup() {
                   key={type.name}
                   onClick={() => handleFormChange("user_type", type.name)}
                   className={`
-                  flex flex-col items-center
-                  w-52 pt-10 pb-8 rounded-lg
-                  text-sm text-slate-900 dark:text-white
-                  focus:outline-none focus:ring-0
-                  
-                  transition
-                  ${
-                    form.user_type === type.name
-                      ? `
-                        bg-zinc-100 dark:bg-zinc-800
-                        shadow-[0_-6px_0_theme('colors.zinc.200')] dark:shadow-[0_-6px_0_theme('colors.zinc.900')]
-                        translate-y-2`
-                      : `
-                        border-4 border-zinc-100 dark:border-zinc-800
+                    flex flex-col items-center
+                    w-52 pt-10 pb-8 rounded-lg
+                    text-sm text-slate-900 dark:text-white
+                    focus:outline-none focus:ring-0
+                    
+                    transition
+                    ${
+                      form.user_type === type.name
+                        ? `
+                          bg-zinc-100 dark:bg-zinc-800
+                          shadow-[0_-6px_0_theme('colors.zinc.200')] dark:shadow-[0_-6px_0_theme('colors.zinc.900')]
+                          translate-y-2`
+                        : `
+                          border-4 border-zinc-100 dark:border-zinc-800
 
-                        bg-white dark:bg-zinc-700
-                        shadow-[0_6px_0_theme('colors.zinc.100')] dark:shadow-[0_6px_0_theme('colors.zinc.800')]
-                        hover:bg-zinc-100 hover:border-zinc-200 hover:shadow-[0_6px_0_theme('colors.zinc.200')] hover:translate-y-[1px] 
-                        dark:hover:bg-zinc-800 dark:hover:border-zinc-900 dark:hover:shadow-[0_6px_0_theme('colors.zinc.900')]
+                          bg-white dark:bg-zinc-600
+                          shadow-[0_6px_0_theme('colors.zinc.100')] dark:shadow-[0_6px_0_theme('colors.zinc.800')]
+                          hover:bg-zinc-100 hover:border-zinc-200 hover:shadow-[0_6px_0_theme('colors.zinc.200')] hover:translate-y-[1px] 
+                          dark:hover:bg-zinc-700 dark:hover:border-zinc-800 dark:hover:shadow-[0_6px_0_theme('colors.zinc.800')]
+                          
 
-                        focus:translate-y-2 
-                      `
-                  }
-                `}
+                          transition-transform 
+                          focus:outline-none focus-visible:outline-none active:outline-none
+                          focus:translate-y-2 
+                        `
+                    }
+                  `}
                 >
                   <img src={type.imgSrc} alt={type.name} className="pb-3" />
                   <span>{type.name}</span>
@@ -280,7 +328,7 @@ export default function signup() {
                         text-sm text-slate-900 dark:text-white
                         focus:outline-none focus:ring-0
 
-                        transition
+                        transition-transform
                         ${
                           isPressedStyle
                             ? `
@@ -290,18 +338,17 @@ export default function signup() {
                             : `
                               border-4 border-zinc-100 dark:border-zinc-800
 
-                              bg-white dark:bg-zinc-700
+                              bg-white dark:bg-zinc-600
                               shadow-[0_6px_0_theme('colors.zinc.100')] dark:shadow-[0_6px_0_theme('colors.zinc.800')]
                               hover:bg-zinc-100 hover:border-zinc-200 hover:shadow-[0_6px_0_theme('colors.zinc.200')] hover:translate-y-[1px] 
-                              dark:hover:bg-zinc-800 dark:hover:border-zinc-900 dark:hover:shadow-[0_6px_0_theme('colors.zinc.900')]
-                            `
+                            dark:hover:bg-zinc-700 dark:hover:border-zinc-800 dark:hover:shadow-[0_6px_0_theme('colors.zinc.800')]                            `
                         }
                       `}
                   >
                     <img
                       src={item.imgSrc}
                       alt={item.name}
-                      className="w-14 mr-2 pb-1"
+                      className="w-14 mx-auto pb-1"
                     />
                     <span>{item.name}</span>
                   </button>
@@ -417,7 +464,7 @@ export default function signup() {
                   text="Signup"
                   style="mt-4"
                   onClick={handleSignupClick}
-                  disabled={!isFormComplete}
+                  disabled={!isFormComplete || isLoading}
                   fullWidth
                 />
               </div>
