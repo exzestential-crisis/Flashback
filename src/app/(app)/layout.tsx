@@ -1,19 +1,16 @@
+// app/(app)/layout.tsx
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import NotificationContainer from "@/components/feedback/Notification";
+import { Sidebar } from "@/components/layout";
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        <NotificationProvider>
-          {children}
-          <NotificationContainer />
-        </NotificationProvider>
-      </body>
-    </html>
+    <NotificationProvider>
+      <div className="flex">
+        <Sidebar />
+        {children}
+      </div>
+      <NotificationContainer />
+    </NotificationProvider>
   );
 }

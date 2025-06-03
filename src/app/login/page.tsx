@@ -2,14 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useNotification } from "@/contexts/NotificationContext";
 
 import { AnimatedButton, LightButton, ArrowBack, Input } from "@/components";
 import { Facebook, Google } from "../../../public/assets/logos";
 
-export default function login() {
+export default function Login() {
   // data
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { addNotification } = useNotification();
 
   // navigation
   const router = useRouter();
@@ -18,8 +23,63 @@ export default function login() {
   };
 
   // Form Submission
-  const handleLoginClick = () => {
-    console.log("Login Credentials: ", email, password);
+  const handleLoginClick = async () => {
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password: password,
+      });
+
+      if (error) {
+        addNotification(error.message, "error");
+        return;
+      }
+
+      if (!data.user?.email_confirmed_at) {
+        addNotification("Please verify your email before logging in", "error");
+        return;
+      }
+
+      addNotification("Login successful!", "success");
+
+      // Refresh the router to trigger middleware re-evaluation
+      router.replace("/home");
+    } catch (error) {
+      console.error("Login error:", error);
+      addNotification("Network error. Please try again.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle social login
+  const handleSocialLogin = async (provider: "google" | "facebook") => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: `${window.location.origin}/home`,
+        },
+      });
+
+      if (error) {
+        addNotification(error.message, "error");
+      }
+    } catch (error) {
+      console.error("Social login error:", error);
+      addNotification("Social login failed. Please try again.", "error");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -41,6 +101,7 @@ export default function login() {
               placeholder="Email"
               variant="blue"
               required
+              disabled={isLoading}
             />
 
             <Input
@@ -51,18 +112,20 @@ export default function login() {
               variant="blue"
               showPasswordToggle
               required
+              disabled={isLoading}
             />
 
             <div className="flex justify-center">
               <AnimatedButton
-                text="Login"
+                text={isLoading ? "Logging in..." : "Login"}
                 onClick={handleLoginClick}
                 style="w-60"
+                disabled={isLoading}
               />
             </div>
           </div>
 
-          {/* API Log in */}
+          {/* Social Login */}
           <div className="w-full">
             <div className="grid grid-cols-7 items-center gap-4 p-4 mt-2 text-black/40 dark:text-zinc-400">
               <hr className="col-span-3" />
@@ -77,6 +140,8 @@ export default function login() {
                 imgClass="h-5 rounded-full me-2"
                 variant="colored"
                 fullWidth
+                disabled={isLoading}
+                onClick={() => handleSocialLogin("facebook")}
               />
               <LightButton
                 text="Google"
@@ -84,6 +149,8 @@ export default function login() {
                 imgClass="h-5 rounded-full me-2"
                 variant="colored"
                 fullWidth
+                disabled={isLoading}
+                onClick={() => handleSocialLogin("google")}
               />
             </div>
           </div>

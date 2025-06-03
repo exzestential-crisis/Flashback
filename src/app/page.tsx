@@ -1,8 +1,11 @@
+//src/app/page.tsx
 "use client";
 
 import Nav from "./components/Nav";
 import { AnimatedButton, LightButton } from "@/components/ui";
 import { useRouter } from "next/navigation";
+
+import AuthDebug from "./components/AuthDebug";
 
 export default function Home() {
   const router = useRouter();
@@ -18,6 +21,7 @@ export default function Home() {
   return (
     <div className="relative">
       <Nav />
+      {/* <AuthDebug /> */}
 
       {/* Body */}
       <div className="relative flex flex-col min-h-screen justify-center">

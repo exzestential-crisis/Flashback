@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useNotification } from "@/contexts/NotificationContext";
 
 import { AnimatedButton, ArrowBack, LightButton, Input } from "@/components";
 import Nav from "../components/Nav";
 import { Facebook, Google } from "../../../public/assets/logos";
-import { useNotification } from "@/contexts/NotificationContext";
 
 export default function signup() {
   const router = useRouter();
