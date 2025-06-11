@@ -4,15 +4,19 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useNotification } from "@/contexts/NotificationContext";
+import { useHandleEnterPress } from "@/hooks/useHandleEnterPress";
+import { useLoadingStore } from "@/store/LoadingStore";
 
 import { AnimatedButton, LightButton, ArrowBack, Input } from "@/components";
-import { Facebook, Google } from "../../../public/assets/logos";
+import { Facebook, Google } from "../../../public";
 
 export default function Login() {
+  //ui
+  const { isLoading, showLoading, hideLoading } = useLoadingStore();
+
   // data
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const { addNotification } = useNotification();
 
@@ -23,13 +27,15 @@ export default function Login() {
   };
 
   // Form Submission
-  const handleLoginClick = async () => {
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!email || !password) {
       setError("Please fill in all fields");
+      hideLoading();
       return;
     }
 
-    setIsLoading(true);
+    showLoading();
     setError("");
 
     try {
@@ -50,19 +56,18 @@ export default function Login() {
 
       addNotification("Login successful!", "success");
 
-      // Refresh the router to trigger middleware re-evaluation
       router.replace("/home");
     } catch (error) {
       console.error("Login error:", error);
       addNotification("Network error. Please try again.", "error");
     } finally {
-      setIsLoading(false);
+      hideLoading();
     }
   };
 
   // Handle social login
   const handleSocialLogin = async (provider: "google" | "facebook") => {
-    setIsLoading(true);
+    showLoading();
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: provider,
@@ -78,9 +83,13 @@ export default function Login() {
       console.error("Social login error:", error);
       addNotification("Social login failed. Please try again.", "error");
     } finally {
-      setIsLoading(false);
+      hideLoading();
     }
   };
+
+  const handleKeyPress = useHandleEnterPress({
+    onSubmit: handleSubmit,
+  });
 
   return (
     <div className="relative bg-sky-200 dark:bg-slate-900 min-h-screen w-full">
@@ -93,67 +102,69 @@ export default function Login() {
         <h1 className="text-2xl font-bold mb-5">Login</h1>
 
         <div className="flex flex-col items-center justify-center w-1/6">
-          <div className="flex flex-col gap-4 w-full">
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              variant="blue"
-              required
-              disabled={isLoading}
-            />
-
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              variant="blue"
-              showPasswordToggle
-              required
-              disabled={isLoading}
-            />
-
-            <div className="flex justify-center">
-              <AnimatedButton
-                text={isLoading ? "Logging in..." : "Login"}
-                onClick={handleLoginClick}
-                style="w-60"
+          <form onKeyDown={handleKeyPress} className="w-full">
+            <div className="flex flex-col gap-4 w-full">
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
+                variant="blue"
+                required
                 disabled={isLoading}
               />
-            </div>
-          </div>
 
-          {/* Social Login */}
-          <div className="w-full">
-            <div className="grid grid-cols-7 items-center gap-4 p-4 mt-2 text-black/40 dark:text-zinc-400">
-              <hr className="col-span-3" />
-              <p className="text-center">or</p>
-              <hr className="col-span-3" />
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                variant="blue"
+                showPasswordToggle
+                required
+                disabled={isLoading}
+              />
+
+              <div className="flex justify-center">
+                <AnimatedButton
+                  text={isLoading ? "Logging in..." : "Login"}
+                  onClick={handleSubmit}
+                  style="w-60"
+                  disabled={isLoading}
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <LightButton
-                text="Facebook"
-                img={Facebook}
-                imgClass="h-5 rounded-full me-2"
-                variant="colored"
-                fullWidth
-                disabled={isLoading}
-                onClick={() => handleSocialLogin("facebook")}
-              />
-              <LightButton
-                text="Google"
-                img={Google}
-                imgClass="h-5 rounded-full me-2"
-                variant="colored"
-                fullWidth
-                disabled={isLoading}
-                onClick={() => handleSocialLogin("google")}
-              />
+            {/* Social Login */}
+            <div className="w-full">
+              <div className="grid grid-cols-7 items-center gap-4 p-4 mt-2 text-black/40 dark:text-zinc-400">
+                <hr className="col-span-3" />
+                <p className="text-center">or</p>
+                <hr className="col-span-3" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <LightButton
+                  text="Facebook"
+                  img={Facebook}
+                  imgClass="h-5 rounded-full me-2"
+                  variant="colored"
+                  fullWidth
+                  disabled={isLoading}
+                  onClick={() => handleSocialLogin("facebook")}
+                />
+                <LightButton
+                  text="Google"
+                  img={Google}
+                  imgClass="h-5 rounded-full me-2"
+                  variant="colored"
+                  fullWidth
+                  disabled={isLoading}
+                  onClick={() => handleSocialLogin("google")}
+                />
+              </div>
             </div>
-          </div>
+          </form>
 
           <div className="flex flex-col gap-4 text-center mt-4 text-black/40 dark:text-zinc-400 py-4">
             <p>

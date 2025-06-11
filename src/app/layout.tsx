@@ -1,10 +1,9 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import AnimatedWrapper from "@/components/ui/AnimatedWrapper";
-import { NotificationProvider } from "@/contexts/NotificationContext";
-import NotificationContainer from "@/components/feedback/Notification";
+import ClientLayout from "@/components/layout/ClientLayout"; // 👈 this will use Zustand
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,18 +22,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-zinc-900 dark:text-white`}
       >
-        <NotificationProvider>
-          <AnimatedWrapper>{children}</AnimatedWrapper>
-          <NotificationContainer />
-        </NotificationProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

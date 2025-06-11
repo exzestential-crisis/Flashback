@@ -1,9 +1,5 @@
 "use client";
 
 export default function discover() {
-  return (
-    <div>
-      <div>gay</div>
-    </div>
-  );
+  return <div>gay</div>;
 }

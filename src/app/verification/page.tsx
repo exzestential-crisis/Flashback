@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
+import { useHandleEnterPress } from "@/hooks/useHandleEnterPress";
+import { useLoadingStore } from "@/store/LoadingStore";
 
 import Nav from "@/app/components/Nav";
 import { AnimatedButton } from "@/components";
@@ -15,8 +17,7 @@ export default function verification() {
   const inputRefs = useRef(
     Array.from({ length: 6 }, () => React.createRef<HTMLInputElement>())
   );
-  const [isLoading, setIsLoading] = useState(false);
-
+  const { isLoading, showLoading, hideLoading } = useLoadingStore();
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
@@ -162,7 +163,7 @@ export default function verification() {
       return;
     }
 
-    setIsLoading(true);
+    showLoading();
     setError("");
 
     try {
@@ -212,9 +213,14 @@ export default function verification() {
       console.error("Verification error:", error);
       setError("An error occurred. Please try again.");
     } finally {
-      setIsLoading(false);
+      hideLoading();
     }
   };
+
+  //handle enter
+  const handleKeyPress = useHandleEnterPress({
+    onSubmit: () => handleSubmit({} as React.FormEvent),
+  });
 
   return (
     <div className="relative flex flex-col min-h-screen w-full">
@@ -234,7 +240,11 @@ export default function verification() {
         )}
 
         {/* Input Boxes */}
-        <form className="pt-10" onSubmit={handleSubmit}>
+        <form
+          className="pt-10"
+          onSubmit={handleSubmit}
+          onKeyDown={handleKeyPress}
+        >
           <div className="flex space-x-2 just">
             {values.map((value, index) => (
               <input

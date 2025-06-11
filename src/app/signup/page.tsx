@@ -2,17 +2,19 @@
 import { useState, useEffect, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useNotification } from "@/contexts/NotificationContext";
+import { useHandleEnterPress } from "@/hooks/useHandleEnterPress";
+import { useLoadingStore } from "@/store/LoadingStore";
 
 import { AnimatedButton, ArrowBack, LightButton, Input } from "@/components";
 import Nav from "../components/Nav";
-import { Facebook, Google } from "../../../public/assets/logos";
+import { Facebook, Google } from "../../../public";
 
 export default function signup() {
   const router = useRouter();
 
   // ui
   const { addNotification } = useNotification();
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, showLoading, hideLoading } = useLoadingStore();
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -185,10 +187,10 @@ export default function signup() {
   };
 
   //Form Submission
-  const handleSignupClick = async () => {
+  const handleSubmit = async () => {
     if (!isFormComplete) return;
 
-    setIsLoading(true);
+    showLoading();
 
     try {
       // Store form data in sessionStorage for verification page
@@ -229,9 +231,13 @@ export default function signup() {
       console.error("Signup error:", error);
       addNotification("An error occurred. Please try again.", "error");
     } finally {
-      setIsLoading(false);
+      hideLoading();
     }
   };
+
+  const handleKeyPress = useHandleEnterPress({
+    onSubmit: handleSubmit,
+  });
 
   return (
     <div className="relative flex min-h-screen overflow-x-hidden">
@@ -373,136 +379,140 @@ export default function signup() {
             <div className="fade-in-delayed w-4/5">
               {/* Form */}
 
-              <div className="flex flex-col">
-                <Input
-                  type="email"
-                  value={form.email}
-                  onChange={handleEmailChange}
-                  placeholder="Email"
-                  variant="plain"
-                  className="lg:mt-4"
-                  required
-                />
-
-                {/* Email requirements */}
-                {form.email &&
-                  (!emailRequirementsMet.hasAtSymbol ||
-                    !emailRequirementsMet.validDomain) && (
-                    <p className="text-sm text-rose-500 lg:mt-2">
-                      Please enter a valid email address
-                    </p>
-                  )}
-
-                <Input
-                  type="text"
-                  value={form.username}
-                  onChange={(e) => handleFormChange("username", e.target.value)}
-                  placeholder="Username"
-                  variant="plain"
-                  className="lg:mt-4"
-                  required
-                />
-
-                <Input
-                  type="password"
-                  value={form.password}
-                  onChange={handlePasswordChange}
-                  placeholder="Password"
-                  variant="plain"
-                  className="lg:mt-4"
-                  showPasswordToggle
-                  required
-                />
-
-                {/* Password Requirements */}
-                {form.password &&
-                  (!passwordRequirementsMet.length ||
-                    !passwordRequirementsMet.uppercase ||
-                    !passwordRequirementsMet.lowercase ||
-                    !passwordRequirementsMet.number) && (
-                    <div className="flex flex-col lg:mt-2">
-                      <p
-                        className={`text-sm ${
-                          passwordRequirementsMet.length
-                            ? "text-green-400"
-                            : "text-rose-500"
-                        }`}
-                      >
-                        At least 8 characters
-                      </p>
-                      <p
-                        className={`text-sm ${
-                          passwordRequirementsMet.uppercase
-                            ? "text-green-400"
-                            : "text-rose-500"
-                        }`}
-                      >
-                        At least 1 uppercase character
-                      </p>
-                      <p
-                        className={`text-sm ${
-                          passwordRequirementsMet.lowercase
-                            ? "text-green-400"
-                            : "text-rose-500"
-                        }`}
-                      >
-                        At least 1 lowercase character
-                      </p>
-                      <p
-                        className={`text-sm ${
-                          passwordRequirementsMet.number
-                            ? "text-green-400"
-                            : "text-rose-500"
-                        }`}
-                      >
-                        At least 1 number
-                      </p>
-                    </div>
-                  )}
-
-                <AnimatedButton
-                  text="Signup"
-                  style="mt-4"
-                  onClick={handleSignupClick}
-                  disabled={!isFormComplete || isLoading}
-                  fullWidth
-                />
-              </div>
-
-              {/* Api log in */}
-              <div>
-                <div className="grid grid-cols-7 items-center gap-4 py-4 dark:text-zinc-400">
-                  <hr className="col-span-3" />
-                  <p className="text-center">or</p>
-                  <hr className="col-span-3" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <LightButton
-                    text="Facebook"
-                    img={Facebook}
-                    imgClass="h-5 rounded-full me-2"
-                    fullWidth
+              <form onKeyDown={handleKeyPress} className="w-full">
+                <div className="flex flex-col">
+                  <Input
+                    type="email"
+                    value={form.email}
+                    onChange={handleEmailChange}
+                    placeholder="Email"
+                    variant="plain"
+                    className="lg:mt-4"
+                    required
                   />
-                  <LightButton
-                    text="Google"
-                    img={Google}
-                    imgClass="h-5 rounded-full me-2"
+
+                  {/* Email requirements */}
+                  {form.email &&
+                    (!emailRequirementsMet.hasAtSymbol ||
+                      !emailRequirementsMet.validDomain) && (
+                      <p className="text-sm text-rose-500 lg:mt-2">
+                        Please enter a valid email address
+                      </p>
+                    )}
+
+                  <Input
+                    type="text"
+                    value={form.username}
+                    onChange={(e) =>
+                      handleFormChange("username", e.target.value)
+                    }
+                    placeholder="Username"
+                    variant="plain"
+                    className="lg:mt-4"
+                    required
+                  />
+
+                  <Input
+                    type="password"
+                    value={form.password}
+                    onChange={handlePasswordChange}
+                    placeholder="Password"
+                    variant="plain"
+                    className="lg:mt-4"
+                    showPasswordToggle
+                    required
+                  />
+
+                  {/* Password Requirements */}
+                  {form.password &&
+                    (!passwordRequirementsMet.length ||
+                      !passwordRequirementsMet.uppercase ||
+                      !passwordRequirementsMet.lowercase ||
+                      !passwordRequirementsMet.number) && (
+                      <div className="flex flex-col lg:mt-2">
+                        <p
+                          className={`text-sm ${
+                            passwordRequirementsMet.length
+                              ? "text-green-400"
+                              : "text-rose-500"
+                          }`}
+                        >
+                          At least 8 characters
+                        </p>
+                        <p
+                          className={`text-sm ${
+                            passwordRequirementsMet.uppercase
+                              ? "text-green-400"
+                              : "text-rose-500"
+                          }`}
+                        >
+                          At least 1 uppercase character
+                        </p>
+                        <p
+                          className={`text-sm ${
+                            passwordRequirementsMet.lowercase
+                              ? "text-green-400"
+                              : "text-rose-500"
+                          }`}
+                        >
+                          At least 1 lowercase character
+                        </p>
+                        <p
+                          className={`text-sm ${
+                            passwordRequirementsMet.number
+                              ? "text-green-400"
+                              : "text-rose-500"
+                          }`}
+                        >
+                          At least 1 number
+                        </p>
+                      </div>
+                    )}
+
+                  <AnimatedButton
+                    text="Signup"
+                    style="mt-4"
+                    onClick={handleSubmit}
+                    disabled={!isFormComplete || isLoading}
                     fullWidth
                   />
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-4 text-center mt-8 text-black/40 dark:text-zinc-400">
-                <p>
-                  By signing in to FlashBack, you agree to our Terms and Privacy
-                  Policy.
-                </p>
-                <p>
-                  This site is protected by reCAPTCHA Enterprise and the Google
-                  Privacy Policy and Terms of Service apply.
-                </p>
-              </div>
+                {/* Api log in */}
+                <div>
+                  <div className="grid grid-cols-7 items-center gap-4 py-4 dark:text-zinc-400">
+                    <hr className="col-span-3" />
+                    <p className="text-center">or</p>
+                    <hr className="col-span-3" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <LightButton
+                      text="Facebook"
+                      img={Facebook}
+                      imgClass="h-5 rounded-full me-2"
+                      fullWidth
+                    />
+                    <LightButton
+                      text="Google"
+                      img={Google}
+                      imgClass="h-5 rounded-full me-2"
+                      fullWidth
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-4 text-center mt-8 text-black/40 dark:text-zinc-400">
+                  <p>
+                    By signing in to FlashBack, you agree to our Terms and
+                    Privacy Policy.
+                  </p>
+                  <p>
+                    This site is protected by reCAPTCHA Enterprise and the
+                    Google Privacy Policy and Terms of Service apply.
+                  </p>
+                </div>
+              </form>
             </div>
           </div>
         </div>
