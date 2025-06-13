@@ -4,7 +4,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { BiSidebar } from "react-icons/bi";
-import { FaBell, FaHome, FaPlay, FaPlus, FaUser } from "react-icons/fa";
+import {
+  FaBell,
+  FaHome,
+  FaPlay,
+  FaPlus,
+  FaRegChartBar,
+  FaUser,
+} from "react-icons/fa";
 import { FaEarthAmericas, FaGear } from "react-icons/fa6";
 
 export default function Sidebar() {
@@ -14,6 +21,7 @@ export default function Sidebar() {
     { name: "Home", icon: FaHome, link: "/home" },
     { name: "Discover", icon: FaEarthAmericas, link: "/discover" },
     { name: "Create", icon: FaPlus, link: "/create" },
+    { name: "Statistics", icon: FaRegChartBar, link: "/statistics" },
     { name: "Notifications", icon: FaBell, link: "/notifications" },
     { name: "Profile", icon: FaUser, link: "/profile" },
   ];

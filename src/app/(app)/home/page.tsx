@@ -10,7 +10,6 @@ export default function home() {
     { key: "Decks", content: <DeckTab /> },
     { key: "Folders", content: <FolderTab /> },
     { key: "Favourites", content: <FavouriteTab /> },
-    { key: "Statistics", content: <ComingSoon /> },
   ];
   const tabs = panels.map((panel) => panel.key);
   const [activeTab, setActiveTab] = useState<string>(tabs[0]);

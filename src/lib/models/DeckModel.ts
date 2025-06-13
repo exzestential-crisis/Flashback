@@ -1,3 +1,5 @@
+// lib/models/DeckModel.ts
+
 import { z } from "zod";
 
 export const DeckModel = z.object({
@@ -16,4 +18,10 @@ export const DeckModel = z.object({
   color_id: z.number().int(),
 });
 
+// added card_count
+export const DeckWithCardsModel = DeckModel.extend({
+  card_count: z.number().int().default(0),
+});
+
 export type Deck = z.infer<typeof DeckModel>;
+export type DeckWithCards = z.infer<typeof DeckWithCardsModel>;
