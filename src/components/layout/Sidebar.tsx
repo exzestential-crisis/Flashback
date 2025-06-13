@@ -23,7 +23,7 @@ export default function Sidebar() {
         className={`
           relative flex flex-col
           dark:bg-zinc-800
-          border-e-2 p-4 dark:border-zinc-800
+          border-e-2 p-4 border-zinc-200 dark:border-zinc-800
           h-screen overflow-hidden
           transition-[width]
           duration-300 ease-in-out
@@ -65,7 +65,7 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <hr className="my-4 dark:text-zinc-400" />
+        <hr className="my-4 text-zinc-200 dark:text-zinc-400" />
 
         {/* Tabs */}
         <div className="tabs flex flex-col flex-grow">
