@@ -10,4 +10,10 @@ export const FolderModel = z.object({
   color_id: z.number().int(),
 });
 
+// added deck_count
+export const FolderWithDecksModel = FolderModel.extend({
+  deck_count: z.number().int().default(0),
+});
+
 export type Folder = z.infer<typeof FolderModel>;
+export type FolderWithDecks = z.infer<typeof FolderWithDecksModel>;

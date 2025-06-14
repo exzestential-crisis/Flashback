@@ -53,9 +53,6 @@ export default function Login() {
         addNotification("Please verify your email before logging in", "error");
         return;
       }
-
-      addNotification("Login successful!", "success");
-
       router.replace("/home");
     } catch (error) {
       console.error("Login error:", error);

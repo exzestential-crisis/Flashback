@@ -1,14 +1,20 @@
 //src/app/page.tsx
 "use client";
 
-import Nav from "./components/Nav";
 import { AnimatedButton, LightButton } from "@/components/ui";
-import { useRouter } from "next/navigation";
-
+import Nav from "./components/Nav";
 import AuthDebug from "./components/AuthDebug";
+
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/signup");
+    router.prefetch("/login");
+  }, [router]);
 
   const handleSignupClick = () => {
     router.push("/signup");

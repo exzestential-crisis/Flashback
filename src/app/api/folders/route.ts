@@ -1,29 +1,31 @@
-// src/app/api/users/[userId]/decks/route.ts
-// COMPLETE VERSION: Has both sorting AND card counts
-
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-sever";
-import { DeckWithCards, DeckWithCardsModel } from "@/lib/models/DeckModel";
+import {
+  FolderModel,
+  FolderWithDecks,
+  FolderWithDecksModel,
+} from "@/lib/models/FolderModel";
+import { count } from "console";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { userId: string } }
 ) {
-  const { userId } = params;
+  const userId = request.nextUrl.pathname.match(/\/users\/([^/]+)/)?.[1];
   const { searchParams } = new URL(request.url);
 
   // sorting options
-  const sortBy = searchParams.get("sort_by") || "last_modified"; // last_modified, last_studied, created_at, title
+  const sortBy = searchParams.get("sort_by") || "last_modified"; // last_modified, created_at, title
   const sortOrder = searchParams.get("sort_order") || "desc"; // asc or desc
   const limit = parseInt(searchParams.get("limit") || "20"); // 20 decks per page
-  const offset = parseInt(searchParams.get("offset") || "0"); // deck ofset (i.e., 1-20 cards, 21-40, etc.)
+  const offset = parseInt(searchParams.get("offset") || "0"); // deck ofset (i.e., 1-20 cards, 21-40, etc.)}
 
-  // Validate sort_by field (add card_count as new option)
   const validSortFields = [
+    "deck_count",
     "last_modified",
-    "last_studied",
     "created_at",
-    "title",
+    "is_favourite",
+    "name",
     "card_count",
   ];
   if (!validSortFields.includes(sortBy)) {
@@ -33,7 +35,6 @@ export async function GET(
     );
   }
 
-  // Validate sort_order
   if (!["asc", "desc"].includes(sortOrder)) {
     return NextResponse.json(
       { error: "Invalid sort_order. Use 'asc' or 'desc'" },
@@ -43,7 +44,7 @@ export async function GET(
 
   try {
     const { data, error } = await supabaseServer.rpc(
-      "get_decks_with_card_count",
+      "get_folders_with_deck_count",
       {
         p_user_id: userId,
         p_limit: limit,
@@ -59,12 +60,12 @@ export async function GET(
     }
 
     // Validate the data
-    const validatedDecks = data.map((deck: DeckWithCards) =>
-      DeckWithCardsModel.parse(deck)
+    const validatedFolders = data.map((folder: FolderWithDecks) =>
+      FolderWithDecksModel.parse(folder)
     );
 
     return NextResponse.json({
-      decks: validatedDecks,
+      folders: validatedFolders,
       count: data.length,
       limit,
       offset,
