@@ -1,69 +1,13 @@
-// src/app/api/decks/route.ts
+// src/app/api/decks/route.ts - Using withAuth wrapper
 
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { DeckWithCards, DeckWithCardsModel } from "@/lib/models/DeckModel";
+import { withAuth } from "@/lib/supabase/server";
 
-export async function GET(request: NextRequest) {
+// Using the withAuth wrapper (cleanest approach)
+export const GET = withAuth(async (request, supabase, user, actualUserId) => {
   try {
-    // Create authenticated Supabase client
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // The `setAll` method was called from a Server Component.
-              // This can be ignored if you have middleware refreshing
-              // user sessions.
-            }
-          },
-        },
-      }
-    );
-
-    // Get the authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      console.error("Auth error:", authError);
-      return NextResponse.json(
-        { error: "Unauthorized - Please log in" },
-        { status: 401 }
-      );
-    }
-
     console.log("Authenticated user ID (auth):", user.id);
-
-    // Get the actual user_id from your users table using the auth_id
-    const { data: userData, error: userError } = await supabase
-      .from("users")
-      .select("user_id")
-      .eq("auth_id", user.id)
-      .single();
-
-    if (userError || !userData) {
-      console.error("User lookup error:", userError);
-      return NextResponse.json(
-        { error: "User not found in database" },
-        { status: 404 }
-      );
-    }
-
-    const actualUserId = userData.user_id;
     console.log("Actual user ID from users table:", actualUserId);
 
     // Parse query parameters
@@ -115,16 +59,16 @@ export async function GET(request: NextRequest) {
     }
 
     console.log("About to call RPC with params:", {
-      p_user_id: user.id,
+      p_user_id: actualUserId,
       p_limit: limit,
       p_offset: offset,
       p_sort_by: sortBy,
       p_sort_order: sortOrder,
     });
 
-    // Call the RPC function with the actual user's ID
+    // Call the RPC function
     const { data, error } = await supabase.rpc("get_decks_with_card_count", {
-      p_user_id: actualUserId, // Use the actual user's ID from users table
+      p_user_id: actualUserId,
       p_limit: limit,
       p_offset: offset,
       p_sort_by: sortBy,
@@ -142,7 +86,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Also let's check if we have any decks at all for this user
+    // Debug query
     const { data: allDecks, error: allDecksError } = await supabase
       .from("decks")
       .select("*")
@@ -151,7 +95,7 @@ export async function GET(request: NextRequest) {
     console.log("All decks for user:", allDecks);
     console.log("All decks error:", allDecksError);
 
-    // Validate the data using your model (skip validation for debugging)
+    // Validate the data
     let validatedDecks;
     try {
       validatedDecks = data.map((deck: DeckWithCards) =>
@@ -160,7 +104,6 @@ export async function GET(request: NextRequest) {
     } catch (validationError) {
       console.error("Validation error:", validationError);
       console.log("Raw data that failed validation:", data);
-      // Return raw data for debugging
       validatedDecks = data;
     }
 
@@ -185,4 +128,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
