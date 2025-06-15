@@ -7,17 +7,12 @@ import { withAuth } from "@/lib/supabase/server";
 // Using the withAuth wrapper (cleanest approach)
 export const GET = withAuth(async (request, supabase, user, actualUserId) => {
   try {
-    console.log("Authenticated user ID (auth):", user.id);
-    console.log("Actual user ID from users table:", actualUserId);
-
     // Parse query parameters
     const { searchParams } = new URL(request.url);
     const sortBy = searchParams.get("sort_by") || "last_modified";
     const sortOrder = searchParams.get("sort_order") || "desc";
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = parseInt(searchParams.get("offset") || "0");
-
-    console.log("Query parameters:", { sortBy, sortOrder, limit, offset });
 
     // Validate sort_by field
     const validSortFields = [
@@ -87,13 +82,13 @@ export const GET = withAuth(async (request, supabase, user, actualUserId) => {
     }
 
     // Debug query
-    const { data: allDecks, error: allDecksError } = await supabase
-      .from("decks")
-      .select("*")
-      .eq("user_id", actualUserId);
+    // const { data: allDecks, error: allDecksError } = await supabase
+    //   .from("decks")
+    //   .select("*")
+    //   .eq("user_id", actualUserId);
 
-    console.log("All decks for user:", allDecks);
-    console.log("All decks error:", allDecksError);
+    // console.log("All decks for user:", allDecks);
+    // console.log("All decks error:", allDecksError);
 
     // Validate the data
     let validatedDecks;
@@ -114,12 +109,12 @@ export const GET = withAuth(async (request, supabase, user, actualUserId) => {
       offset,
       sort_by: sortBy,
       sort_order: sortOrder,
-      debug: {
-        auth_user_id: user.id,
-        actual_user_id: actualUserId,
-        total_decks_in_db: allDecks?.length || 0,
-        rpc_returned: data?.length || 0,
-      },
+      // debug: {
+      //   auth_user_id: user.id,
+      //   actual_user_id: actualUserId,
+      //   total_decks_in_db: allDecks?.length || 0,
+      //   rpc_returned: data?.length || 0,
+      // },
     });
   } catch (error) {
     console.error("API error:", error);
