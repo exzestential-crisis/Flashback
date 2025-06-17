@@ -1,10 +1,9 @@
-// src/app/api/decks/route.ts - Using withAuth wrapper
+// src/app/api/decks/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { DeckWithCards, DeckWithCardsModel } from "@/lib/models/DeckModel";
 import { withAuth } from "@/lib/supabase/server";
 
-// Using the withAuth wrapper (cleanest approach)
 export const GET = withAuth(async (request, supabase, user, actualUserId) => {
   try {
     // Parse query parameters
@@ -21,7 +20,7 @@ export const GET = withAuth(async (request, supabase, user, actualUserId) => {
       "created_at",
       "is_favourite",
       "title",
-      "card_count",
+      "card_count", // Note: This will need special handling
     ];
     if (!validSortFields.includes(sortBy)) {
       return NextResponse.json(
@@ -53,68 +52,84 @@ export const GET = withAuth(async (request, supabase, user, actualUserId) => {
       );
     }
 
-    console.log("About to call RPC with params:", {
-      p_user_id: actualUserId,
-      p_limit: limit,
-      p_offset: offset,
-      p_sort_by: sortBy,
-      p_sort_order: sortOrder,
+    console.log("Fetching decks with params:", {
+      userId: actualUserId,
+      limit,
+      offset,
+      sortBy,
+      sortOrder,
     });
 
-    // Call the RPC function
-    const { data, error } = await supabase.rpc("get_decks_with_card_count", {
-      p_user_id: actualUserId,
-      p_limit: limit,
-      p_offset: offset,
-      p_sort_by: sortBy,
-      p_sort_order: sortOrder,
-    });
+    // Build the query
+    let query = supabase
+      .from("decks")
+      .select(
+        `
+        *,
+        card_count:cards(count)
+      `
+      )
+      .eq("user_id", actualUserId);
 
-    console.log("RPC response - data:", data);
-    console.log("RPC response - error:", error);
+    // Handle sorting - card_count needs special treatment
+    if (sortBy === "card_count") {
+      // For card_count, we might need to handle this differently
+      // Supabase might not sort aggregated fields directly
+      query = query.order("created_at", { ascending: sortOrder === "asc" });
+    } else {
+      query = query.order(sortBy, { ascending: sortOrder === "asc" });
+    }
+
+    // Apply pagination
+    const { data, error } = await query.range(offset, offset + limit - 1);
+
+    console.log("Query response - data:", data);
+    console.log("Query response - error:", error);
 
     if (error) {
-      console.error("Supabase RPC error:", error);
+      console.error("Supabase query error:", error);
       return NextResponse.json(
         { error: "Failed to fetch decks", details: error.message },
         { status: 500 }
       );
     }
 
-    // Debug query
-    // const { data: allDecks, error: allDecksError } = await supabase
-    //   .from("decks")
-    //   .select("*")
-    //   .eq("user_id", actualUserId);
+    // Transform the data to match your expected format
+    const transformedData =
+      data?.map((deck: { card_count: { count: any }[] }) => ({
+        ...deck,
+        card_count: deck.card_count?.[0]?.count || 0,
+      })) || [];
 
-    // console.log("All decks for user:", allDecks);
-    // console.log("All decks error:", allDecksError);
+    // If sorting by card_count, sort in JavaScript
+    if (sortBy === "card_count") {
+      transformedData.sort(
+        (a: { card_count: number }, b: { card_count: number }) => {
+          const diff = a.card_count - b.card_count;
+          return sortOrder === "asc" ? diff : -diff;
+        }
+      );
+    }
 
     // Validate the data
     let validatedDecks;
     try {
-      validatedDecks = data.map((deck: DeckWithCards) =>
+      validatedDecks = transformedData.map((deck: DeckWithCards) =>
         DeckWithCardsModel.parse(deck)
       );
     } catch (validationError) {
       console.error("Validation error:", validationError);
-      console.log("Raw data that failed validation:", data);
-      validatedDecks = data;
+      console.log("Raw data that failed validation:", transformedData);
+      validatedDecks = transformedData;
     }
 
     return NextResponse.json({
       decks: validatedDecks,
-      count: data.length,
+      count: transformedData.length,
       limit,
       offset,
       sort_by: sortBy,
       sort_order: sortOrder,
-      // debug: {
-      //   auth_user_id: user.id,
-      //   actual_user_id: actualUserId,
-      //   total_decks_in_db: allDecks?.length || 0,
-      //   rpc_returned: data?.length || 0,
-      // },
     });
   } catch (error) {
     console.error("API error:", error);

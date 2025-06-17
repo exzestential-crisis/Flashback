@@ -1,4 +1,7 @@
+// lib/models/FolderModel.ts
+
 import { z } from "zod";
+import { DeckWithCardsModel } from "./DeckModel";
 
 export const FolderModel = z.object({
   folder_id: z.number().int(),
@@ -10,9 +13,10 @@ export const FolderModel = z.object({
   color_id: z.number().int(),
 });
 
-// added deck_count
+// Updated to include the decks array
 export const FolderWithDecksModel = FolderModel.extend({
   deck_count: z.number().int().default(0),
+  decks: z.array(DeckWithCardsModel).default([]),
 });
 
 export type Folder = z.infer<typeof FolderModel>;

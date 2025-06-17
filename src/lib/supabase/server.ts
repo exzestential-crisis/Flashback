@@ -97,15 +97,17 @@ export async function getAuthenticatedUser(supabase: any) {
  * @param handler - The actual API route handler function
  * @returns Wrapped handler with authentication
  */
-export function withAuth(
+// Updated withAuth wrapper to support route parameters
+export function withAuth<T = any>(
   handler: (
     request: NextRequest,
     supabase: any,
     user: any,
-    actualUserId: string
+    actualUserId: string,
+    params?: T
   ) => Promise<NextResponse>
 ) {
-  return async (request: NextRequest) => {
+  return async (request: NextRequest, context?: { params: T }) => {
     try {
       const supabase = await createAuthenticatedSupabaseClient();
       const { user, actualUserId, error } = await getAuthenticatedUser(
@@ -119,7 +121,14 @@ export function withAuth(
         );
       }
 
-      return await handler(request, supabase, user, actualUserId);
+      // Pass params if they exist
+      return await handler(
+        request,
+        supabase,
+        user,
+        actualUserId,
+        context?.params
+      );
     } catch (error) {
       console.error("Auth wrapper error:", error);
       return NextResponse.json(
