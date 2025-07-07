@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BiSidebar } from "react-icons/bi";
 import {
   FaBell,
@@ -14,8 +14,15 @@ import {
 } from "react-icons/fa";
 import { FaEarthAmericas, FaGear } from "react-icons/fa6";
 
+import useMediaQuery from "@/hooks/useMediaQuery"; // adjust path as needed
+
 export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const isSmallScreen = useMediaQuery("(max-width: 1279px)"); // Tailwind's xl = 1280px
+  const [collapsed, setCollapsed] = useState(isSmallScreen);
+
+  useEffect(() => {
+    setCollapsed(isSmallScreen);
+  }, [isSmallScreen]);
 
   const tabs = [
     { name: "Home", icon: FaHome, link: "/home" },

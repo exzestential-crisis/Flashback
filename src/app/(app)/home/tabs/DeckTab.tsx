@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components";
 import Deck from "@/components/cards/Deck";
 import { useEffect, useState } from "react";
 
@@ -29,7 +30,13 @@ export default function DeckTab() {
 
     fetchDecks();
   }, []);
-  if (loading) return <p>Loading...</p>;
+
+  if (loading)
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
 
   return (
     <div className="p-4">
