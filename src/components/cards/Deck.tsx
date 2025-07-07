@@ -37,17 +37,14 @@ export default function Deck({
           transform: isHovered ? "translateY(-6px)" : "translateY(0)",
         }}
       >
-        {/* Back layer - darkest */}
         <div
           className="absolute right-0 h-full w-full rounded-2xl"
           style={{ backgroundColor: colors.dark }}
         />
-        {/* Middle layer - base color */}
         <div
           className="absolute right-0 h-full w-[95%] rounded-2xl z-10"
           style={{ backgroundColor: colors.base }}
         />
-        {/* Front layer - lightest */}
         <div
           className="absolute right-0 h-full w-[90%] rounded-2xl z-20"
           style={{ backgroundColor: colors.light }}
@@ -67,7 +64,13 @@ export default function Deck({
         }}
       >
         <div className="relative flex flex-grow flex-col h-full p-2">
-          <KebabMenu size={22} className="absolute right-0 mt-0.5" />
+          <KebabMenu
+            className="absolute right-0 mt-1"
+            options={[
+              { label: "Edit", onClick: () => console.log("Edit clicked") },
+              { label: "Delete", onClick: () => console.log("Delete clicked") },
+            ]}
+          />
           <div className="flex items-start justify-between">
             <div className="w-[90%]">
               <h2 className="font-bold text-lg p-0 truncate">{name}</h2>

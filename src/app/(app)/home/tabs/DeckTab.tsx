@@ -11,9 +11,7 @@ export default function DeckTab() {
   useEffect(() => {
     async function fetchDecks() {
       try {
-        const res = await fetch(
-          "/api/decks?sort_by=last_modified&sort_order=desc&limit=20&offset=0"
-        );
+        const res = await fetch("/api/decks");
         const json = await res.json();
 
         if (!res.ok) {
@@ -31,19 +29,15 @@ export default function DeckTab() {
     fetchDecks();
   }, []);
 
-  if (loading)
-    return (
-      <div className="h-full w-full flex items-center justify-center">
-        <Spinner />
-      </div>
-    );
+  if (loading) return <Spinner full />;
 
   return (
     <div className="p-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {decks.map((deck: any) => (
           <div key={deck.id} className="flex justify-center py-4">
             <Deck
+              key={deck.id}
               name={deck.name}
               description={deck.description}
               folderName={deck.folder.name}

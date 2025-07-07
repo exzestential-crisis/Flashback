@@ -1,6 +1,15 @@
-export default function Spinner() {
+type SpinnerType = {
+  full?: boolean;
+};
+
+export default function Spinner({ full }: SpinnerType) {
   return (
-    <div role="status">
+    <div
+      role="status"
+      className={`${
+        full ? "h-full w-full flex items-center justify-center" : ""
+      }`}
+    >
       <svg
         aria-hidden="true"
         className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-sky-500"
