@@ -66,6 +66,7 @@ export const GET = withAuth(async (request, supabase, user, actualUserId) => {
       .select(
         `
         *,
+        folder:folders(color_id, name),
         card_count:cards(count)
       `
       )

@@ -6,6 +6,7 @@ export const DeckModel = z.object({
   deck_id: z.number().int(),
   user_id: z.string().uuid(),
   folder_id: z.number().int(),
+  folder_name: z.string(),
   name: z.string(),
   description: z.string(),
   created_at: z.coerce.date(),
