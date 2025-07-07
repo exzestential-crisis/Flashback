@@ -5,3 +5,5 @@ export { default as LightButton } from "./LightButton";
 export { default as Input } from "./Input";
 export { default as CardLoading } from "./CardLoading";
 export { default as Spinner } from "./Spinner";
+export { default as Portal } from "./Portal";
+export { default as BaseModal } from "./BaseModal";

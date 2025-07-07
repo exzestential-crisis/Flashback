@@ -5,24 +5,41 @@ import { getColorVariants } from "@/utils/colorUtils";
 import KebabMenu from "../nav/KebabMenu";
 
 type DeckType = {
+  id: string;
   name: string;
   description: string;
   folderName: string;
   cardCount: number;
   colorId: number;
+  onEdit?: (deck: DeckType) => void;
+  onDelete?: (deck: DeckType) => void;
 };
 
 export default function Deck({
+  id,
   name,
   description,
   folderName,
   cardCount,
   colorId,
+  onEdit,
+  onDelete,
 }: DeckType) {
+  // ui
   const [isHovered, setIsHovered] = useState(false);
 
   // Get dynamic colors from utils
   const colors = getColorVariants(colorId);
+
+  // Create deck object for callbacks
+  const deckData: DeckType = {
+    id,
+    name,
+    description,
+    folderName,
+    cardCount,
+    colorId,
+  };
 
   return (
     <div
@@ -67,8 +84,14 @@ export default function Deck({
           <KebabMenu
             className="absolute right-0 mt-1"
             options={[
-              { label: "Edit", onClick: () => console.log("Edit clicked") },
-              { label: "Delete", onClick: () => console.log("Delete clicked") },
+              {
+                label: "Edit",
+                onClick: () => onEdit?.(deckData),
+              },
+              {
+                label: "Delete",
+                onClick: () => onDelete?.(deckData),
+              },
             ]}
           />
           <div className="flex items-start justify-between">

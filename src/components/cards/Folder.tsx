@@ -9,9 +9,16 @@ import KebabMenu from "../nav/KebabMenu";
 type FolderType = {
   name: string;
   colorId: number;
+  onEdit?: (folder: FolderType) => void;
+  onDelete?: (folder: FolderType) => void;
 };
 
-export default function Folder({ name, colorId }: FolderType) {
+export default function Folder({
+  name,
+  colorId,
+  onEdit,
+  onDelete,
+}: FolderType) {
   const [isHovered, setIsHovered] = useState(false);
   const colors = getColorVariants(colorId);
 
